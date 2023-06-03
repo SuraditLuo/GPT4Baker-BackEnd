@@ -102,16 +102,20 @@ def get_and_extract_review_data():
                 reviews = remove_word(reviews)
                 review_split = re.split(r'\s+(?=[ก-ฮเ-์]+)', reviews)
                 for review in review_split:
+                    eng_review = []
                     for i in range (len(th_positive)):
                         if th_positive[i] in review:
                             if th_negative[i] in review:
-                                eng_reviews.append(en_negative[i])
+                                eng_review.append(en_negative[i])
                             else:
-                                eng_reviews.append(en_positive[i])
+                                eng_review.append(en_positive[i])
+                    eng_review = list(set(eng_review))
+                    eng_reviews.append(eng_review)
         else:
             eng_reviews = ['no review']
-        print(list(set(eng_reviews)))
-        df.at[index, 'review'] = list(set(eng_reviews))
+        # remove blank list
+        eng_reviews = [review for review in eng_reviews if review]
+        df.at[index, 'review'] = eng_reviews
     df.to_csv('../extracted_bakery_review.csv', index=False)
 def combined_and_create_csv():
     df = pd.read_csv('../untranslated_bakery.csv', encoding='utf-8')
