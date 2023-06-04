@@ -173,10 +173,48 @@ def selenium_web_scraping():
                 continue
             try:
                 driver.find_element(By.CLASS_NAME, 'BaseGap-sc-1wadqs8.jtAAwm.iowx8b-4.cDpduH.iowx8b-4.cDpduH')
-                check_in = driver.find_element(By.XPATH, '//*[@id="body"]/div[2]/div[2]/div[1]/div[5]/div[1]/div[1]/div/h2').text
-                check_in = int(''.join(filter(str.isdigit, check_in.split())))
-                bookmarked = driver.find_element(By.XPATH, '//*[@id="body"]/div[2]/div[2]/div[1]/div[5]/div[2]/div[1]/div/h2').text
-                bookmarked = int(''.join(filter(str.isdigit, bookmarked.split())))
+                try:
+                    check_in = driver.find_element(By.XPATH,
+                                                   '//*[@id="body"]/div[2]/div[2]/div[1]/div[5]/div[1]/div[1]/div/h2').text
+                    check_in = int(''.join(filter(str.isdigit, check_in.split())))
+                except NoSuchElementException:
+                    try:
+                        check_in = driver.find_element(By.XPATH,
+                                                       '//*[@id="body"]/div[2]/div[2]/div[1]/div[6]/div[1]/div[1]/div/h2').text
+                        check_in = int(''.join(filter(str.isdigit, check_in.split())))
+                    except NoSuchElementException:
+                        try:
+                            check_in = driver.find_element(By.XPATH,
+                                                           '//*[@id="body"]/div[2]/div[2]/div[1]/div[7]/div[1]/div[1]/div/h2').text
+                            check_in = int(''.join(filter(str.isdigit, check_in.split())))
+                        except NoSuchElementException:
+                            try:
+                                check_in = driver.find_element(By.XPATH,
+                                                               '//*[@id="body"]/div[2]/div[2]/div[1]/div[8]/div[1]/div[1]/div/h2').text
+                                check_in = int(''.join(filter(str.isdigit, check_in.split())))
+                            except NoSuchElementException:
+                                check_in = 0
+                try:
+                    bookmarked = driver.find_element(By.XPATH,
+                                                     '//*[@id="body"]/div[2]/div[2]/div[1]/div[5]/div[2]/div[1]/div/h2').text
+                    bookmarked = int(''.join(filter(str.isdigit, bookmarked.split())))
+                except NoSuchElementException:
+                    try:
+                        bookmarked = driver.find_element(By.XPATH,
+                                                         '//*[@id="body"]/div[2]/div[2]/div[1]/div[6]/div[2]/div[1]/div/h2').text
+                        bookmarked = int(''.join(filter(str.isdigit, bookmarked.split())))
+                    except NoSuchElementException:
+                        try:
+                            bookmarked = driver.find_element(By.XPATH,
+                                                             '//*[@id="body"]/div[2]/div[2]/div[1]/div[7]/div[2]/div[1]/div/h2').text
+                            bookmarked = int(''.join(filter(str.isdigit, bookmarked.split())))
+                        except NoSuchElementException:
+                            try:
+                                bookmarked = driver.find_element(By.XPATH,
+                                                                 '//*[@id="body"]/div[2]/div[2]/div[1]/div[8]/div[2]/div[1]/div/h2').text
+                                bookmarked = int(''.join(filter(str.isdigit, bookmarked.split())))
+                            except NoSuchElementException:
+                                bookmarked = 0
             except NoSuchElementException:
                 check_in = 0
                 bookmarked = 0

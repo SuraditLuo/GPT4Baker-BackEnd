@@ -125,7 +125,7 @@ def combined_and_create_csv():
     df['address'] = address_df['address']
     df['menu'] = menu_df['menu']
     df['review'] = review_df['review']
-    df.to_csv('../cleaned_bakery.csv', index=False)
+    df.to_csv('cleaned_bakery.csv', index=False)
 if __name__ == '__main__':
     # get_and_clean_address_data()
     # get_and_clean_menu_data()
