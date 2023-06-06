@@ -86,7 +86,7 @@ def selenium_web_scraping():
     bakeries = pd.read_csv('url_dataset.csv', encoding="utf-8")
     df = pd.DataFrame(columns=['name', 'rating', 'rating_amt', 'address', 'menu',
                                'open_hr', 'delivery_hr', 'price_scale', 'seat_amt', 'review', 'check_in', 'bookmarked'])
-    boolean_df = pd.DataFrame(columns=['car_park', 'Wi-Fi', 'pet_allows', 'card_accept', 'delivery',
+    boolean_df = pd.DataFrame(columns=['car_park', 'wi_fi', 'pet_allows', 'card_accept', 'delivery',
                                        'for_kids', 'for_group'])
     for i in range(len(bakeries)):
         try:
@@ -98,7 +98,7 @@ def selenium_web_scraping():
                 EC.presence_of_element_located((By.CLASS_NAME, 'mb-16-mWeb'))
             )
             sparse_list = ['N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A']
-            li_list = ['ที่จอดรถ', 'Wi-Fi', 'สัตว์เลี้ยงเข้าได้', 'รับบัตรเครดิต', 'เดลิเวอรี',
+            li_list = ['ที่จอดรถ', 'wi_fi', 'สัตว์เลี้ยงเข้าได้', 'รับบัตรเครดิต', 'เดลิเวอรี',
                        'เหมาะสำหรับเด็กๆ', 'เหมาะสำหรับมาเป็นกลุ่ม']
             name = driver.find_element(By.CLASS_NAME, 'bd36.bd18-mWeb.text-gray-700').text
             try:
@@ -151,6 +151,8 @@ def selenium_web_scraping():
                             seat_amt = seat_amt[1]
                         else:
                             seat_amt = seat_amt[0]
+                    else:
+                        seat_amt = 0
                 else:
                     seat_amt = 'N/A'
             except NoSuchElementException:
@@ -166,7 +168,7 @@ def selenium_web_scraping():
                     for index, item in enumerate(li_list):
                         if title == item:
                             sparse_list[index] = li_boolean
-                boolean_new_row = pd.DataFrame({'car_park': [sparse_list[0]], 'Wi-Fi': [sparse_list[1]], 'pet_allows': [sparse_list[2]],
+                boolean_new_row = pd.DataFrame({'car_park': [sparse_list[0]], 'wi_fi': [sparse_list[1]], 'pet_allows': [sparse_list[2]],
                                         'card_accept': [sparse_list[3]], 'delivery': [sparse_list[4]], 'for_kids': [sparse_list[5]],
                                         'for_group': [sparse_list[6]]})
             except NoSuchElementException:
