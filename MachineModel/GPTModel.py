@@ -30,7 +30,7 @@ openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 
 def to_mongoDB():
-    cleaned_df = pd.read_csv('../cleaned_featured_bakery.csv')
+    cleaned_df = pd.read_csv('../Material/cleaned_featured_bakery.csv')
     cleaned_dict = cleaned_df.to_dict(orient='records')
     client = pymongo.MongoClient(os.environ.get("MONGO_HOST"), int(os.environ.get("MONGO_PORT")))
     db = client[os.environ.get("BAKERY_DATABASE")]
@@ -40,21 +40,11 @@ def to_mongoDB():
     collection.insert_many(cleaned_dict)
     client.close()
 
-def ai_learning():
-    from pathlib import Path
-    from llama_index import download_loader
-
-    SimpleCSVReader = download_loader("SimpleCSVReader")
-
-    loader = SimpleCSVReader()
-    documents = loader.load_data(file=Path('../cleaned_featured_bakery.csv'))
-    print(documents)
-
-def train_lmm():
+def csv_train_lmm():
     SimpleCSVReader = download_loader("SimpleCSVReader")
     # Load csv document
     loader = SimpleCSVReader()
-    documents = loader.load_data(file=Path('../cleaned_bakery.csv'))
+    documents = loader.load_data(file=Path('../Material/cleaned_bakery.csv'))
     index = VectorStoreIndex.from_documents(documents)
     query_engine = index.as_query_engine()
     response = query_engine.query("Here's another csv that I want you to read and understand. It's the same information as a "
@@ -68,6 +58,17 @@ def train_lmm():
     print(response)
     # save
     index.storage_context.persist()
+
+def pdf_train_lmm():
+    PDFReader = download_loader("PDFReader")
+    loader = PDFReader()
+    documents = loader.load_data(file=Path('../Material/Bakery_business_technique.pdf'))
+    index = VectorStoreIndex.from_documents(documents)
+    query_engine = index.as_query_engine()
+    response = query_engine.query("Here's the context to become a good bakery shop in Chiang Mai, I want you to acknowledge this article"
+                                  "and be able to educate other baker")
+    print(response)
+    return True
 
 def test_lmm():
     # rebuild storage context
@@ -83,4 +84,4 @@ def test_lmm():
         index.storage_context.persist()
     # save
 if __name__ == '__main__':
-    train_lmm()
+    test_lmm()

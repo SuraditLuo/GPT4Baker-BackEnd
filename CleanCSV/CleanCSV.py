@@ -31,7 +31,7 @@ def remove_word(text):
 
 
 def get_and_clean_address_data():
-    df = pd.read_csv('../untranslated_bakery.csv', encoding='utf-8')
+    df = pd.read_csv('../Material/untranslated_bakery.csv', encoding='utf-8')
     for index, row in df.iterrows():
         district_found = []
         thai_address = row['address']
@@ -46,7 +46,7 @@ def get_and_clean_address_data():
     df.to_csv('../translated_bakery_address.csv', index=False)
     return True
 def get_and_translate_menu_data():
-    df = pd.read_csv('../untranslated_bakery.csv', encoding='utf-8')
+    df = pd.read_csv('../Material/untranslated_bakery.csv', encoding='utf-8')
     for index, row in df.iterrows():
         thai_menu = row['menu']
         if type(thai_menu) is not float:
@@ -73,7 +73,7 @@ def get_and_translate_menu_data():
     df.to_csv('../translated_bakery_menu.csv', index=False)
     return True
 def get_and_extract_menu_data():
-    df = pd.read_csv('../translated_bakery_menu.csv', encoding='utf-8')
+    df = pd.read_csv('../Material/translated_bakery_menu.csv', encoding='utf-8')
     print(bakery_list)
     for index, row in df.iterrows():
         menu_found = []
@@ -95,7 +95,7 @@ def get_and_extract_menu_data():
     df.to_csv('../translated_and_extract_bakery_menu.csv', index=False)
     return True
 def get_and_extract_review_data():
-    df = pd.read_csv('../untranslated_bakery.csv', encoding='utf-8')
+    df = pd.read_csv('../Material/untranslated_bakery.csv', encoding='utf-8')
     for index, row in df.iterrows():
         thai_reviews = row['review']
         eng_reviews = []
@@ -122,17 +122,17 @@ def get_and_extract_review_data():
     df.to_csv('../extracted_bakery_review.csv', index=False)
     return True
 def combined_and_create_csv():
-    df = pd.read_csv('../untranslated_bakery.csv', encoding='utf-8')
-    address_df = pd.read_csv('../translated_bakery_address.csv', encoding='utf-8')
-    menu_df = pd.read_csv('../translated_and_extract_bakery_menu.csv', encoding='utf-8')
-    review_df = pd.read_csv('../extracted_bakery_review.csv', encoding='utf-8')
+    df = pd.read_csv('../Material/untranslated_bakery.csv', encoding='utf-8')
+    address_df = pd.read_csv('../Material/translated_bakery_address.csv', encoding='utf-8')
+    menu_df = pd.read_csv('../Material/translated_and_extract_bakery_menu.csv', encoding='utf-8')
+    review_df = pd.read_csv('../Material/extracted_bakery_review.csv', encoding='utf-8')
     df['address'] = address_df['address']
     df['menu'] = menu_df['menu']
     df['review'] = review_df['review']
     df.to_csv('../cleaned_bakery.csv', index=False)
     return True
 def feature_engineering(dict, dfrow, tocsv):
-    df = pd.read_csv('../cleaned_bakery.csv', encoding='utf-8')
+    df = pd.read_csv('../Material/cleaned_bakery.csv', encoding='utf-8')
     feature_dict = dict
     feature_dict = (text.lower() for text in feature_dict)
     keyword_string = ' '.join(feature_dict)
@@ -168,10 +168,10 @@ def feature_engineering(dict, dfrow, tocsv):
     return True
 
 def create_a_feature_table():
-    df = pd.read_csv('../cleaned_bakery.csv', encoding='utf-8')
-    feature_address_df = pd.read_csv('../features_address.csv', encoding='utf-8')
-    feature_menu_df = pd.read_csv('../features_menu.csv', encoding='utf-8')
-    feature_review_df = pd.read_csv('../features_review.csv', encoding='utf-8')
+    df = pd.read_csv('../Material/cleaned_bakery.csv', encoding='utf-8')
+    feature_address_df = pd.read_csv('../Material/features_address.csv', encoding='utf-8')
+    feature_menu_df = pd.read_csv('../Material/features_menu.csv', encoding='utf-8')
+    feature_review_df = pd.read_csv('../Material/features_review.csv', encoding='utf-8')
     df = df.drop(['menu', 'review', 'address'], axis=1)
     df = pd.merge(df, feature_address_df, left_index=True, right_index=True)
     df = pd.merge(df, feature_menu_df, left_index=True, right_index=True)
