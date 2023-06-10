@@ -47,13 +47,20 @@ def csv_train_lmm():
     documents = loader.load_data(file=Path('../Material/cleaned_bakery.csv'))
     index = VectorStoreIndex.from_documents(documents)
     query_engine = index.as_query_engine()
-    response = query_engine.query("Here's another csv that I want you to read and understand. It's the same information as a "
-                                  "previous one, which is an information of bakery shops in Chiang Mai we have around 403 sample."
-                                  "I'll explain some column, the address column contain the name of each district where the bakery shop located"
-                                  "the columns from car_park to for_group is indicate to a service & suitable to their customer."
-                                  "And lastly, a review column which contain a list of reviewer, and inside the reviewer list contains"
-                                  "a keyword that include in their comments. Here's some thing you need to know, when the value in some index"
-                                  "is N/A, it's means that they didn't label it in their bakery shop's website.")
+    response = query_engine.query("Here's another csv that I want you to read and understand. It has the information of bakery shops in Chiang Mai, We have around 403 shops/restaurants."
+                                  "I'll explain each column for you, the first one is the bakery shop/restaurant name, second column rating. It's the overall score of their shop, and rating_amt column is the amount of peoples who gave the score. "
+                                  "the address column contain the name of each district where the bakery shop located, for example if the address value is ['Mueang_Chiang_Mai', 'Suthep', 'Nimmanhaemin'], hence that the shop address is Mueang Chiang Mai Suthep Nimmanhaemin."
+                                  "If the address = ['other'], it mean that the shop located in the location that I didn't label. next one is a menu column, each index in this column contain a list of menu and each item are the name of the product that they sold."
+                                  "For example, if the menu equal to ['scone', 'brownie', 'muffin'], it mean that the shop have scone, brownie, and muffin as their menu."
+                                  "If the menu equal to ['No bakery related menu'], it mean that they didn't include a menu on their website"
+                                  "Next, open_hr and delivery_hr is not the same. 'open_hr' column is the open time period, but delivery_hr is a delivery available period"
+                                  "price_scale is indicate to how expensive the bakery shop is, 1 mean cheap, 2 mean medium, 3 mean expensive, and none mean bakery shop doesn't tell us the price scale."
+                                  "The seat_amt column tell you about how many seat are there in this particular shop/restaurant"
+                                  "a review column which contain a list of reviewer, and inside the reviewer list contains"
+                                  "a keyword that include in their comments. if the review is equal to [], it mean that the bakery shop/restaurant doesn't have any review."
+                                  "Finally, the columns from car_park to for_group is indicate to a service & availability to their customer."
+                                  "Here's some thing you need to know, when the value in some index"
+                                  "is N/A, it's means that they didn't label it in their bakery shop's website. After that, please tell me about a bakery shop in Nimmanhaemin")
 
     print(response)
     # save
@@ -62,12 +69,12 @@ def csv_train_lmm():
 def pdf_train_lmm():
     PDFReader = download_loader("PDFReader")
     loader = PDFReader()
-    documents = loader.load_data(file=Path('../Material/Bakery_business_technique.pdf'))
+    documents = loader.load_data(file=Path('../Material/Tourist_guide_bakery_shop.pdf'))
     index = VectorStoreIndex.from_documents(documents)
     query_engine = index.as_query_engine()
-    response = query_engine.query("Here's the context to become a good bakery shop in Chiang Mai, I want you to acknowledge this article"
-                                  "and be able to educate other baker")
+    response = query_engine.query("These are the list of bakery shop that reviewed by foreign with their comment. I want you to be able to predict a next popular bakery product for both foreigner and Chiang Mai citizen.")
     print(response)
+    index.storage_context.persist()
     return True
 
 def test_lmm():
@@ -84,4 +91,4 @@ def test_lmm():
         index.storage_context.persist()
     # save
 if __name__ == '__main__':
-    test_lmm()
+    pdf_train_lmm()
