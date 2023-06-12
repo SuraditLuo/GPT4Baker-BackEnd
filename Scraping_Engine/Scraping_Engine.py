@@ -19,16 +19,11 @@ import traceback
 #     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36'}
 
 
-def scrapingURL():
+def scrapingURL(base_url, url_csv):
     page_number = 1
-    base_url = 'https://www.wongnai.com/rankings'
     PATH = 'C:\Program Files (x86)\chromedriver.exe'
     df = pd.DataFrame(columns=['name', 'url'])
-
     # Set up Chrome WebDriver
-    # options = Options()
-    # options.add_argument("--headless")  # Run Chrome WebDriver in headless mode (without opening a browser window)
-    # driver = webdriver.Chrome(PATH, options=options)
     driver = webdriver.Chrome(PATH)
 
     for page_number in range(10):
@@ -73,17 +68,15 @@ def scrapingURL():
     df_nonDupe = df.drop_duplicates(subset=['name'])
 
     # Save the dataframe as a CSV file
-    df_nonDupe.to_csv('url_dataset.csv', index=False)
+    df_nonDupe.to_csv(url_csv, index=False)
 
     # Close the browser and WebDriver
     driver.quit()
-def selenium_web_scraping():
-    # options = Options()
-    # options.add_argument("--headless")  # Run Chrome WebDriver in headless mode (without opening a browser window)
+def selenium_web_scraping(bakeryUrls, output_csv):
     PATH = 'C:\Program Files (x86)\chromedriver.exe'
     # driver = webdriver.Chrome(PATH, options=options)
     driver = webdriver.Chrome(PATH)
-    bakeries = pd.read_csv('url_dataset.csv', encoding="utf-8")
+    bakeries = pd.read_csv(bakeryUrls, encoding="utf-8")
     df = pd.DataFrame(columns=['name', 'rating', 'rating_amt', 'address', 'menu',
                                'open_hr', 'delivery_hr', 'price_scale', 'seat_amt', 'review', 'check_in', 'bookmarked'])
     boolean_df = pd.DataFrame(columns=['car_park', 'wi_fi', 'pet_allows', 'card_accept', 'delivery',
@@ -288,6 +281,9 @@ def selenium_web_scraping():
     driver.quit()
     # Quit the driver and save the DataFrame to CSV
     merged_df = pd.merge(df, boolean_df, left_index=True, right_index=True)
-    merged_df.to_csv('untranslated_bakery.csv', index=False, encoding='utf-8')
-    print(merged_df)
+    merged_df.to_csv(output_csv, index=False, encoding='utf-8')
+
+if __name__ == '__main__':
+    scrapingURL('https://www.wongnai.com/rankings', 'url_dataset.csv')
+    selenium_web_scraping('url_dataset.csv', 'untranslated_bakery.csv')
 
