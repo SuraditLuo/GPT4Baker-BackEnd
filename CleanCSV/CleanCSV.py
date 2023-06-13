@@ -151,4 +151,4 @@ if __name__ == '__main__':
     # combined_and_create_csv('../Material/untranslated_bakery.csv', '../Material/translated_bakery_address.csv',
     #                         '../Material/translated_and_extract_bakery_menu.csv', '../Material/extracted_bakery_review.csv',
     #                         '../Material/cleaned_bakery.csv')
-    print(remove_thai_word('335 มูลเมือง ซอย9 ต.ศรีภูมิ อ.เมือง จ.เชียงใหม่ 50200 เชียงใหม่ (ซอยหลังก๊วยเตี๋ยวรสเยี่ยม แจ่งศรีภูมิ (เข้า มูลเมือง ซอย9 30 เมตร และ เลี้ยวขวา))'))
+    print('')
