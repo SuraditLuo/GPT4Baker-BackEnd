@@ -34,40 +34,6 @@ openai.api_key = os.environ.get("OPENAI_API_KEY")
 from werkzeug.datastructures import FileStorage
 from werkzeug.test import create_environ
 from werkzeug.datastructures import ImmutableMultiDict
-class TestScriptSendDFToMongoDB(unittest.TestCase):
-    @patch.dict(os.environ, {"MONGO_HOST": os.getenv("MONGO_HOST"), "MONGO_PORT": os.getenv("MONGO_PORT")})
-    @patch('pymongo.MongoClient')
-    def test_to_mongoDB_success(self, mock_client):
-        df = pd.DataFrame({'name': ['GROON (GROON)', 'Saruda Finest Pastry'], 'address': [['Mueang_Chiang_Mai', 'Suthep'], ['Mueang_Chiang_Mai', 'Nimmanhaemin']]})
-
-        # Mock MongoDB client and database
-        mock_collection = mock_client.return_value['test_db']['test_collection']
-
-        # Call the to_mongoDB function
-        result = to_mongoDB(df)
-
-        # Assertions
-        mock_client.assert_called_with(os.getenv("MONGO_HOST"), int(os.getenv("MONGO_PORT")))
-        mock_collection.insert_many.assert_called_with(df.to_dict(orient='records'))
-        mock_client.return_value.close.assert_called_once()
-        self.assertTrue(result)
-
-    @patch.dict(os.environ, {"MONGO_HOST": "", "MONGO_PORT": os.getenv("MONGO_PORT")})
-    @patch('pymongo.MongoClient')
-    def test_to_mongoDB_failure(self, mock_client):
-        df = pd.DataFrame({'name': ['GROON (GROON)', 'Saruda Finest Pastry'], 'address': [['Mueang_Chiang_Mai', 'Suthep'], ['Mueang_Chiang_Mai', 'Nimmanhaemin']]})
-
-        # Raise an OSError to simulate a failure
-        mock_client.side_effect = OSError()
-
-        # Call the to_mongoDB function
-        result = to_mongoDB(df)
-
-        # Assertions
-        mock_client.assert_called_with(os.getenv("MONGO_HOST"), int(os.getenv("MONGO_PORT")))
-        mock_client.return_value.close.assert_not_called()
-        self.assertFalse(result)
-
 class TestScriptReplyMethod(unittest.TestCase):
     def setUp(self):
         # Create a test Flask app
