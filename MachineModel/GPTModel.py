@@ -70,11 +70,13 @@ def get_and_read_pdf():
     index.insert_nodes(nodes)
     query_engine = index.as_query_engine()
     response = query_engine.query(str(query))
-    print(response)
-    jsonResult = {'response': '200', 'date': datetime.now(), 'message': response}
-    response = make_response(jsonResult)
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Credentials'] = 'true'
+    json_response = jsonify(response)
+    json_data = json_response.get_json()
+    score = json_data.get('source_nodes')[0].get('score')
+    print(score)
+    json_data.pop('source_nodes')
+    json_data.pop('extra_info')
+    response = {'response': '200', 'date': datetime.now(), 'message': json_data, 'score': score}
     # Remove the temporary PDF file
     os.remove(pdf_path)
     return response
@@ -84,10 +86,13 @@ def reply():
     prompt = argList['query'][0]
     #Get prompt and response
     response = query_engine.query(prompt)
-    jsonResult = {'response': '200', 'date': datetime.now(), 'message': response}
-    response = make_response(jsonResult)
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Credentials'] = 'true'
+    json_response = jsonify(response)
+    json_data = json_response.get_json()
+    score = json_data.get('source_nodes')[0].get('score')
+    print(score)
+    json_data.pop('source_nodes')
+    json_data.pop('extra_info')
+    response = {'response': '200', 'date': datetime.now(), 'message': json_data, 'score': score}
     return response
 
 if __name__ == '__main__':
