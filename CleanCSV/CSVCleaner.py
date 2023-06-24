@@ -5,10 +5,10 @@ import ast
 
 from scipy import sparse
 
-from Dictionary import subdistricts_chiang_mai_th as subd_cm_th
-from Dictionary import subdistricts_chiang_mai_en as subd_cm_en
+from Dictionary import address_chiang_mai_th as address_cm_th
+from Dictionary import address_chiang_mai_en as address_cm_en
 from Dictionary import bakery_list as bakery_list
-from Dictionary import bakery_list_no_space as non_space_bakery_list
+from Dictionary import bakery_list_no_spacing as non_space_bakery_list
 from Dictionary import review_th_positive as th_positive
 from Dictionary import review_th_negative as th_negative
 from Dictionary import review_en_positive as en_positive
@@ -39,15 +39,14 @@ def get_and_extract_address_data(input_file, output_file):
         district_found = []
         thai_address = row['address']
         thai_address = remove_thai_word(thai_address)
-        for i in range(len(subd_cm_th)):
-            if subd_cm_th[i] in thai_address:
-                district_found.append(subd_cm_en[i])
+        for i in range(len(address_cm_th)):
+            if address_cm_th[i] in thai_address:
+                district_found.append(address_cm_en[i])
         if len(district_found) < 1:
             df.at[index, 'address'] = ['Other']
         else:
             df.at[index, 'address'] = district_found
     df.to_csv(output_file, index=False)
-    return df
 
 def get_and_translate_menu_data(input_file, output_file):
     df = pd.read_csv(input_file, encoding='utf-8')
@@ -73,8 +72,6 @@ def get_and_translate_menu_data(input_file, output_file):
         eng_menu = [word.lower() for word in eng_menu]
         df.at[index, 'menu'] = eng_menu
     df.to_csv(output_file, index=False)
-    return df
-
 def get_and_extract_menu_data(input_file, output_file):
     df = pd.read_csv(input_file, encoding='utf-8')
     for index, row in df.iterrows():
@@ -91,7 +88,6 @@ def get_and_extract_menu_data(input_file, output_file):
         else:
             df.at[index, 'menu'] = sorted(menu_found)
     df.to_csv(output_file, index=False)
-    return df
 
 def get_and_extract_review_data(input_file, output_file):
     df = pd.read_csv(input_file, encoding='utf-8')
@@ -118,7 +114,6 @@ def get_and_extract_review_data(input_file, output_file):
         eng_reviews = [review for review in eng_reviews if review]
         df.at[index, 'review'] = sorted(eng_reviews)
     df.to_csv(output_file, index=False)
-    return df
 
 def combined_and_create_csv(input_file, address_file, menu_file, review_file, output_file):
     df = pd.read_csv(input_file, encoding='utf-8')
@@ -129,14 +124,13 @@ def combined_and_create_csv(input_file, address_file, menu_file, review_file, ou
     df['menu'] = menu_df['menu']
     df['review'] = review_df['review']
     df.to_csv(output_file, index=False)
-    return df
 
 if __name__ == '__main__':
-    # get_and_extract_address_data('../Material/untranslated_bakery.csv', '../Material/translated_bakery_address.csv')
+    # get_and_extract_address_data('../Material/untranslated_bakery.csv', '../Material/extracted_bakery_address.csv')
     # get_and_translate_menu_data('../Material/untranslated_bakery.csv', '../Material/translated_bakery_menu.csv')
     # get_and_extract_menu_data('../Material/translated_bakery_menu.csv', '../Material/translated_and_extract_bakery_menu.csv')
     # get_and_extract_review_data('../Material/untranslated_bakery.csv', '../Material/extracted_bakery_review.csv')
-    # combined_and_create_csv('../Material/untranslated_bakery.csv', '../Material/translated_bakery_address.csv',
+    # combined_and_create_csv('../Material/untranslated_bakery.csv', '../Material/extracted_bakery_address.csv',
     #                         '../Material/translated_and_extract_bakery_menu.csv', '../Material/extracted_bakery_review.csv',
     #                         '../Material/cleaned_bakery.csv')
     print('')

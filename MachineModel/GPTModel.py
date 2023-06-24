@@ -1,16 +1,13 @@
 import tempfile
 
-import llama_index.indices.struct_store
 import openai
 import pymongo
-import pandas as pd
 from datetime import datetime
 import logging
 import sys
 from dotenv import load_dotenv
 import os
 import nest_asyncio
-import pandas as pd
 from llama_index import GPTPandasIndex, download_loader, VectorStoreIndex
 from pathlib import Path
 from llama_index import StorageContext, load_index_from_storage
@@ -19,7 +16,7 @@ from llama_index.storage import StorageContext
 from flask import Flask, request, jsonify, make_response
 from flask import Flask, request
 from flask_cors import CORS
-from werkzeug.utils import secure_filename
+
 app = Flask(__name__)
 CORS(app)
 nest_asyncio.apply()
@@ -46,7 +43,7 @@ def to_mongoDB(df):
     except OSError:
         return False
 
-def pdf_train_lmm(pdf, query):
+def pdf_train_llm(pdf, query):
     PDFReader = download_loader("PDFReader")
     loader = PDFReader()
     documents = loader.load_data(file=Path(pdf))

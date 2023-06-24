@@ -1,18 +1,6 @@
-import ast
-import os
 import unittest
-
-import numpy as np
-import pandas.core.frame
-
 from CSVCleaner import remove_thai_word
-import pandas as pd
-from CSVCleaner import get_and_extract_address_data
-from CSVCleaner import get_and_translate_menu_data
-from CSVCleaner import get_and_extract_menu_data
-from CSVCleaner import get_and_extract_review_data
-from CSVCleaner import combined_and_create_csv
-from CSVtotxt import get_and_become_text_data
+
 class test_script_remove_thai_word(unittest.TestCase):
     def test_remove_thai_word_one(self):
         # Test data
