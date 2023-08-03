@@ -14,8 +14,11 @@ from llama_index import StorageContext, load_index_from_storage
 from llama_index.node_parser import SimpleNodeParser
 from llama_index.storage import StorageContext
 from flask import Flask, request, jsonify, make_response
-from flask import Flask, request
 from flask_cors import CORS
+from bson import json_util
+from collections import defaultdict
+import json
+import ast
 
 app = Flask(__name__)
 CORS(app)
@@ -31,12 +34,12 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 storage_context = StorageContext.from_defaults(persist_dir="D:\Fork\GPT4Baker-BackEnd\MachineModel\storage")
 index = load_index_from_storage(storage_context)
 query_engine = index.as_query_engine()
+client = pymongo.MongoClient(os.environ.get("MONGO_HOST"), int(os.environ.get("MONGO_PORT")))
+db = client[os.environ.get("BAKERY_DATABASE")]
+collection = db[os.environ.get("BAKERY_COLLECTION")]
 def to_mongoDB(df):
     try:
         cleaned_dict = df.to_dict(orient='records')
-        client = pymongo.MongoClient(os.environ.get("MONGO_HOST"), int(os.environ.get("MONGO_PORT")))
-        db = client[os.environ.get("TEST_BAKERY_DATABASE")]
-        collection = db[os.environ.get("TEST_BAKERY_COLLECTION")]
         collection.insert_many(cleaned_dict)
         client.close()
         return True
@@ -91,6 +94,36 @@ def reply():
     json_data.pop('extra_info')
     response = {'response': '200', 'date': datetime.now(), 'message': json_data, 'score': score}
     return response
+
+@app.route('/findmongo', methods=['GET'])
+def get_mongo_data():
+    argList = request.args.to_dict(flat=False)
+    address = argList['address'][0]
+    try:
+        documents = collection.find({
+        'address': {
+            '$regex': f"(.*{address}.*)"
+            }
+        })
+        find_amt = collection.count_documents({
+            'address': {
+                '$regex': f"(.*{address}.*)"
+            }
+        })
+        # Create a defaultdict to store the counts of each menu item
+        menu_counts = defaultdict(int)
+        result = json.loads(json_util.dumps(documents))
+        for bakery_shop in result:
+            menu_items_str = bakery_shop.get('menu', [])
+            menu_items = ast.literal_eval(menu_items_str)
+            for menu_item in menu_items:
+                menu_counts[menu_item] += 1
+        menu_counts.pop("No bakery related menu", None)
+        menu_counts_sorted = dict(sorted(menu_counts.items(), key=lambda x: x[1], reverse=True))
+        print(menu_counts_sorted)
+        return menu_counts_sorted, 200, {'Content-Type': 'application/json'}
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     # pdf_train_lmm('../Material/pdf-sample.pdf', "This is a short document abot acrobat PDF")

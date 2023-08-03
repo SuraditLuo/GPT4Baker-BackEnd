@@ -284,6 +284,6 @@ def selenium_web_scraping(bakeryUrls, output_csv):
     merged_df.to_csv(output_csv, index=False, encoding='utf-8')
 
 if __name__ == '__main__':
-    scrapingURL('https://www.wongnai.com/rankings', 'url_dataset.csv')
+    # scrapingURL('https://www.wongnai.com/rankings', 'url_dataset.csv')
     selenium_web_scraping('url_dataset.csv', 'untranslated_bakery.csv')
 
