@@ -74,8 +74,9 @@ def scrapingURL(base_url, url_csv):
     driver.quit()
 def selenium_web_scraping(bakeryUrls, output_csv):
     PATH = 'C:\Program Files (x86)\chromedriver.exe'
-    # driver = webdriver.Chrome(PATH, options=options)
-    driver = webdriver.Chrome(PATH)
+    # driver = webdriver.Chrome(PATH)
+    driver = webdriver.Chrome(
+        service=webdriver.chrome.service.Service(executable_path=PATH))
     bakeries = pd.read_csv(bakeryUrls, encoding="utf-8")
     df = pd.DataFrame(columns=['name', 'rating', 'rating_amt', 'address', 'menu',
                                'open_hr', 'delivery_hr', 'price_scale', 'seat_amt', 'review', 'check_in', 'bookmarked'])

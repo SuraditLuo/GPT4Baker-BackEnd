@@ -112,16 +112,26 @@ def get_mongo_data():
         })
         # Create a defaultdict to store the counts of each menu item
         menu_counts = defaultdict(int)
+        price_counts = defaultdict(int)
         result = json.loads(json_util.dumps(documents))
         for bakery_shop in result:
             menu_items_str = bakery_shop.get('menu', [])
             menu_items = ast.literal_eval(menu_items_str)
             for menu_item in menu_items:
                 menu_counts[menu_item] += 1
+            price_scale = bakery_shop.get('price_scale', None)
+            if price_scale in {'1', '2', '3'}:
+                price_counts[price_scale] += 1
+
         menu_counts.pop("No bakery related menu", None)
         menu_counts_sorted = dict(sorted(menu_counts.items(), key=lambda x: x[1], reverse=True))
-        print(menu_counts_sorted)
-        return menu_counts_sorted, 200, {'Content-Type': 'application/json'}
+        price_counts.pop("none", None)
+        result_data = {
+            'amount': find_amt,
+            'menu_counts': menu_counts_sorted,
+            'price_counts': price_counts
+        }
+        return jsonify(result_data), 200, {'Content-Type': 'application/json'}
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
