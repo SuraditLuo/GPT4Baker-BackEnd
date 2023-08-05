@@ -19,6 +19,7 @@ from bson import json_util
 from collections import defaultdict
 import json
 import ast
+from Mongo.Mongo_config import time_range_to_list, collection
 
 app = Flask(__name__)
 CORS(app)
@@ -34,17 +35,6 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 storage_context = StorageContext.from_defaults(persist_dir="D:\Fork\GPT4Baker-BackEnd\MachineModel\storage")
 index = load_index_from_storage(storage_context)
 query_engine = index.as_query_engine()
-client = pymongo.MongoClient(os.environ.get("MONGO_HOST"), int(os.environ.get("MONGO_PORT")))
-db = client[os.environ.get("BAKERY_DATABASE")]
-collection = db[os.environ.get("BAKERY_COLLECTION")]
-def to_mongoDB(df):
-    try:
-        cleaned_dict = df.to_dict(orient='records')
-        collection.insert_many(cleaned_dict)
-        client.close()
-        return True
-    except OSError:
-        return False
 
 def pdf_train_llm(pdf, query):
     PDFReader = download_loader("PDFReader")
@@ -94,7 +84,6 @@ def reply():
     json_data.pop('extra_info')
     response = {'response': '200', 'date': datetime.now(), 'message': json_data, 'score': score}
     return response
-
 @app.route('/findmongo', methods=['GET'])
 def get_mongo_data():
     argList = request.args.to_dict(flat=False)
@@ -110,26 +99,53 @@ def get_mongo_data():
                 '$regex': f"(.*{address}.*)"
             }
         })
-        # Create a defaultdict to store the counts of each menu item
+        # Create a defaultdict to store the counts of each items
         menu_counts = defaultdict(int)
         price_counts = defaultdict(int)
+        time_counts = defaultdict(int)
+        for_kids_count = 0
+        for_group_count = 0
+        for_both_count = 0
+        no_preference_count = 0
         result = json.loads(json_util.dumps(documents))
         for bakery_shop in result:
+            #get menu for each shop
             menu_items_str = bakery_shop.get('menu', [])
             menu_items = ast.literal_eval(menu_items_str)
             for menu_item in menu_items:
                 menu_counts[menu_item] += 1
+            #get price for each shops
             price_scale = bakery_shop.get('price_scale', None)
             if price_scale in {'1', '2', '3'}:
                 price_counts[price_scale] += 1
-
+            #get and process the open hour
+            open_period = bakery_shop.get('open_hr', None)
+            if open_period is not None:
+                for time in time_range_to_list(open_period):
+                    time_counts[time] += 1
+            if bakery_shop.get('for_kids') is True and bakery_shop.get('for_group') is not True:
+                for_kids_count += 1
+            if bakery_shop.get('for_kids') is not True and bakery_shop.get('for_group') is True:
+                for_group_count += 1
+            if bakery_shop.get('for_kids') is True and bakery_shop.get('for_group') is True:
+                for_both_count += 1
+            if bakery_shop.get('for_kids') is not True and bakery_shop.get('for_group') is not True:
+                no_preference_count += 1
         menu_counts.pop("No bakery related menu", None)
         menu_counts_sorted = dict(sorted(menu_counts.items(), key=lambda x: x[1], reverse=True))
         price_counts.pop("none", None)
+        filtered_time_period = {k: v for k, v in time_counts.items() if ":30" not in k}
         result_data = {
             'amount': find_amt,
             'menu_counts': menu_counts_sorted,
-            'price_counts': price_counts
+            'price_counts': price_counts,
+            'time_period': filtered_time_period,
+            'preferences': {
+                'for_kids': for_kids_count,
+                'for_group': for_group_count,
+                'for_kid_and_group': for_both_count,
+                'no_preference': no_preference_count
+            }
         }
         return jsonify(result_data), 200, {'Content-Type': 'application/json'}
     except Exception as e:
