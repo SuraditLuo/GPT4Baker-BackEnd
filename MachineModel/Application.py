@@ -1,3 +1,4 @@
+import math
 import tempfile
 
 import openai
@@ -107,6 +108,8 @@ def get_mongo_data():
         for_group_count = 0
         for_both_count = 0
         no_preference_count = 0
+        top_rating = []
+        top_popular = []
         result = json.loads(json_util.dumps(documents))
         for bakery_shop in result:
             #get menu for each shop
@@ -131,10 +134,34 @@ def get_mongo_data():
                 for_both_count += 1
             if bakery_shop.get('for_kids') is not True and bakery_shop.get('for_group') is not True:
                 no_preference_count += 1
+            if bakery_shop.get('rating') is not None:
+                bakery_rating = {
+                    'name': bakery_shop.get('name'),
+                    'rating_score': bakery_shop.get('rating') * math.log(bakery_shop.get('rating_amt'), 100)
+                }
+            else:
+                bakery_rating = {
+                    'name': bakery_shop.get('name'),
+                    'rating_score': 0
+                }
+            if bakery_shop.get('check_in') > 0 and bakery_shop.get('bookmarked') > 0:
+                bakery_popular = {
+                    'name': bakery_shop.get('name'),
+                    'popularity_score': math.log((bakery_shop.get('check_in') * bakery_shop.get('bookmarked')), 100)
+                }
+            else:
+                bakery_popular = {
+                    'name': bakery_shop.get('name'),
+                    'popularity_score': 0
+                }
+            top_rating.append(bakery_rating)
+            top_popular.append(bakery_popular)
         menu_counts.pop("No bakery related menu", None)
         menu_counts_sorted = dict(sorted(menu_counts.items(), key=lambda x: x[1], reverse=True))
         price_counts.pop("none", None)
         filtered_time_period = {k: v for k, v in time_counts.items() if ":30" not in k}
+        sorted_top_rating = sorted(top_rating, key=lambda x: x['rating_score'], reverse=True)[:5]
+        sorted_top_popular = sorted(top_popular, key=lambda x: x['popularity_score'], reverse=True)[:5]
         result_data = {
             'amount': find_amt,
             'menu_counts': menu_counts_sorted,
@@ -144,8 +171,10 @@ def get_mongo_data():
                 'for_kids': for_kids_count,
                 'for_group': for_group_count,
                 'for_kid_and_group': for_both_count,
-                'no_preference': no_preference_count
-            }
+                'not_mention': no_preference_count
+            },
+            'top_rating': sorted_top_rating,
+            'top_popularity': sorted_top_popular
         }
         return jsonify(result_data), 200, {'Content-Type': 'application/json'}
     except Exception as e:
