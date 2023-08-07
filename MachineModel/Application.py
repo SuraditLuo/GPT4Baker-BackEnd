@@ -20,7 +20,7 @@ from bson import json_util
 from collections import defaultdict
 import json
 import ast
-from Mongo.Mongo_config import time_range_to_list, collection
+from Mongo.Mongo_config import time_range_to_list, collection, rating_calc, popular_calc, get_preference
 
 app = Flask(__name__)
 CORS(app)
@@ -126,36 +126,17 @@ def get_mongo_data():
             if open_period is not None:
                 for time in time_range_to_list(open_period):
                     time_counts[time] += 1
-            if bakery_shop.get('for_kids') is True and bakery_shop.get('for_group') is not True:
+            preference = get_preference(bakery_shop.get('for_kids'), bakery_shop.get('for_group'))
+            if preference == 'for_kids':
                 for_kids_count += 1
-            if bakery_shop.get('for_kids') is not True and bakery_shop.get('for_group') is True:
+            elif preference == 'for_group':
                 for_group_count += 1
-            if bakery_shop.get('for_kids') is True and bakery_shop.get('for_group') is True:
+            elif preference == 'for_both':
                 for_both_count += 1
-            if bakery_shop.get('for_kids') is not True and bakery_shop.get('for_group') is not True:
+            else:
                 no_preference_count += 1
-            if bakery_shop.get('rating') is not None:
-                bakery_rating = {
-                    'name': bakery_shop.get('name'),
-                    'rating_score': bakery_shop.get('rating') * math.log(bakery_shop.get('rating_amt'), 100)
-                }
-            else:
-                bakery_rating = {
-                    'name': bakery_shop.get('name'),
-                    'rating_score': 0
-                }
-            if bakery_shop.get('check_in') > 0 and bakery_shop.get('bookmarked') > 0:
-                bakery_popular = {
-                    'name': bakery_shop.get('name'),
-                    'popularity_score': math.log((bakery_shop.get('check_in') * bakery_shop.get('bookmarked')), 100)
-                }
-            else:
-                bakery_popular = {
-                    'name': bakery_shop.get('name'),
-                    'popularity_score': 0
-                }
-            top_rating.append(bakery_rating)
-            top_popular.append(bakery_popular)
+            top_rating.append(rating_calc(bakery_shop.get('rating'), bakery_shop.get('rating_amt'), bakery_shop.get('name')))
+            top_popular.append(popular_calc(bakery_shop.get('check_in'), bakery_shop.get('bookmarked'), bakery_shop.get('name')))
         menu_counts.pop("No bakery related menu", None)
         menu_counts_sorted = dict(sorted(menu_counts.items(), key=lambda x: x[1], reverse=True))
         price_counts.pop("none", None)

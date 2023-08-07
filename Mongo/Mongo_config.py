@@ -1,3 +1,4 @@
+import math
 import os
 from dotenv import load_dotenv
 import pymongo
@@ -31,3 +32,32 @@ def time_range_to_list(time_range):
             current_hour += 1
             current_minute -= 60
     return time_list
+
+def rating_calc(rating, rating_amt, name):
+    if rating_amt > 0:
+        bakery_rating = {
+            'name': name,
+            'rating_score': rating * math.log(rating_amt, 100)
+        }
+    else:
+        bakery_rating = {
+            'name': name,
+            'rating_score': 0
+        }
+    return bakery_rating
+def popular_calc(check_in, bookmark, name):
+    popularity_score = math.log(max(check_in, 1), 10) + math.log(max(bookmark, 1), 50)
+    bakery_popular = {
+        'name': name,
+        'popularity_score': popularity_score
+    }
+    return bakery_popular
+def get_preference(is_for_kids, is_for_group):
+    if is_for_kids and not is_for_group:
+        return 'for_kids'
+    elif not is_for_kids and is_for_group:
+        return 'for_group'
+    elif is_for_kids and is_for_group:
+        return 'for_both'
+    else:
+        return 'no_preference'
