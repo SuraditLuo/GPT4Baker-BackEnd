@@ -115,11 +115,12 @@ def get_mongo_data():
             #get menu for each shop
             menu_items_str = bakery_shop.get('menu', [])
             menu_items = ast.literal_eval(menu_items_str)
-            for menu_item in menu_items:
+            formatted_menu_items = [item.replace('_', ' ').title() for item in menu_items]
+            for menu_item in formatted_menu_items:
                 menu_counts[menu_item] += 1
             #get price for each shops
-            price_scale = bakery_shop.get('price_scale', None)
-            if price_scale in {'1', '2', '3'}:
+            price_scale = bakery_shop.get('price_scale')
+            if price_scale in {'1', '2', '3', 'none'}:
                 price_counts[price_scale] += 1
             #get and process the open hour
             open_period = bakery_shop.get('open_hr', None)
@@ -137,13 +138,13 @@ def get_mongo_data():
                 no_preference_count += 1
             top_rating.append(rating_calc(bakery_shop.get('rating'), bakery_shop.get('rating_amt'), bakery_shop.get('name')))
             top_popular.append(popular_calc(bakery_shop.get('check_in'), bakery_shop.get('bookmarked'), bakery_shop.get('name')))
-        menu_counts.pop("No bakery related menu", None)
+        menu_counts.pop("No Bakery Related Menu", None)
         menu_counts_sorted = dict(sorted(menu_counts.items(), key=lambda x: x[1], reverse=True))
-        price_counts.pop("none", None)
         filtered_time_period = {k: v for k, v in time_counts.items() if ":30" not in k}
         sorted_top_rating = sorted(top_rating, key=lambda x: x['rating_score'], reverse=True)[:5]
         sorted_top_popular = sorted(top_popular, key=lambda x: x['popularity_score'], reverse=True)[:5]
         result_data = {
+            'location': str(address).replace('_', ' '),
             'amount': find_amt,
             'menu_counts': menu_counts_sorted,
             'price_counts': price_counts,

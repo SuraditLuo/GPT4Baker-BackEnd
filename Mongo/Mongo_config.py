@@ -53,11 +53,19 @@ def popular_calc(check_in, bookmark, name):
     }
     return bakery_popular
 def get_preference(is_for_kids, is_for_group):
-    if is_for_kids and not is_for_group:
-        return 'for_kids'
-    elif not is_for_kids and is_for_group:
-        return 'for_group'
-    elif is_for_kids and is_for_group:
+    if isinstance(is_for_kids, dict) and isinstance(is_for_group, dict):
+        return 'no_preference'
+    elif isinstance(is_for_kids, bool) and isinstance(is_for_group, bool):
         return 'for_both'
+    elif isinstance(is_for_kids, bool) and isinstance(is_for_group, dict):
+        return 'for_kids'
+    elif isinstance(is_for_kids, dict) and isinstance(is_for_group, bool):
+        return 'for_group'
     else:
         return 'no_preference'
+
+
+
+
+
+
