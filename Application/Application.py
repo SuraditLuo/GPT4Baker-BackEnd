@@ -33,7 +33,7 @@ UPLOAD_FOLDER = '../Material'
 os.environ["OPENAI_API_KEY"] = os.environ.get("OPENAI_API_KEY")
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-storage_context = StorageContext.from_defaults(persist_dir="D:\Fork\GPT4Baker-BackEnd\MachineModel\storage")
+storage_context = StorageContext.from_defaults(persist_dir="D:\Fork\GPT4Baker-BackEnd\Application\storage")
 index = load_index_from_storage(storage_context)
 query_engine = index.as_query_engine()
 
