@@ -21,9 +21,11 @@ from collections import defaultdict
 import json
 import ast
 from Mongo.Mongo_config import time_range_to_list, collection, rating_calc, popular_calc, get_preference
+from urllib.parse import parse_qs
+import base64
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 nest_asyncio.apply()
 load_dotenv()
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -47,8 +49,8 @@ def pdf_train_llm(pdf, query):
     response = query_engine.query(str(query))
     index.storage_context.persist()
     return response
-@app.route('/readpdf', methods=['GET'])
-def get_and_read_pdf():
+@app.route('/readpdffrompostman', methods=['GET', 'POST'])
+def get_and_read_pdf_test():
     pdf = request.files['pdf']
     query = request.form['query']
     with tempfile.NamedTemporaryFile(delete=False) as temp_file:
@@ -70,6 +72,36 @@ def get_and_read_pdf():
     response = {'response': '200', 'date': datetime.now(), 'message': json_data, 'score': score}
     # Remove the temporary PDF file
     os.remove(pdf_path)
+    return response
+@app.route('/readpdf', methods=['GET', 'POST'])
+def get_and_read_pdf():
+    pdf = request.form.get('pdf')
+    query = request.form.get('query')
+    pdfName = request.form.get('pdfName')
+    # Decode the base64 content
+    print(pdf)
+    print(query)
+    print(pdfName)
+    pdf_content = base64.b64decode(pdf.split(',', 1)[1])
+    with open(pdfName, 'wb') as pdf_file:
+        pdf_file.write(pdf_content)
+    PDFReader = download_loader("PDFReader")
+    loader = PDFReader()
+    documents = loader.load_data(file=Path(pdfName))
+    nodes = SimpleNodeParser().get_nodes_from_documents(documents)
+    index.insert_nodes(nodes)
+    query_engine = index.as_query_engine()
+    response = query_engine.query(str(query))
+    json_response = jsonify(response)
+    json_data = json_response.get_json()
+    score = json_data.get('source_nodes')[0].get('score')
+    print(score)
+    json_data.pop('source_nodes')
+    json_data.pop('extra_info')
+    response = {'response': '200', 'date': datetime.now(), 'message': json_data, 'score': score}
+    print(json_data)
+    # Remove the temporary PDF file
+    os.remove(pdfName)
     return response
 @app.route('/ask', methods=['GET'])
 def reply():
@@ -163,5 +195,5 @@ def get_mongo_data():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    # pdf_train_lmm('../Material/pdf-sample.pdf', "This is a short document abot acrobat PDF")
+    # pdf_train_llm('../Material/Kent State University_20 ways to Enhance Your Communication Skills.pdf', "This is a document to make you reply to a people humanly since I find that you're reply when I say thanks is not good.")
     app.run(debug=True)
