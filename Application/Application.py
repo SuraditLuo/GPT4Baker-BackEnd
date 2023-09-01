@@ -79,9 +79,6 @@ def get_and_read_pdf():
     query = request.form.get('query')
     pdfName = request.form.get('pdfName')
     # Decode the base64 content
-    print(pdf)
-    print(query)
-    print(pdfName)
     pdf_content = base64.b64decode(pdf.split(',', 1)[1])
     with open(pdfName, 'wb') as pdf_file:
         pdf_file.write(pdf_content)
@@ -117,8 +114,45 @@ def reply():
     json_data.pop('extra_info')
     response = {'response': '200', 'date': datetime.now(), 'message': json_data, 'score': score}
     return response
-@app.route('/findmongo', methods=['GET'])
+
+
+@app.route('/getmongo', methods=['GET'])
 def get_mongo_data():
+    try:
+        address = request.args.get('address')  # Get the 'address' query parameter
+
+        # Use regex to find documents with matching addresses
+        documents = collection.find({
+            'address': {
+                '$regex': f".*{address}.*"
+            }
+        })
+
+        # Convert MongoDB documents to a list of dictionaries with desired fields
+        result = []
+        for doc in documents:
+            filtered_data = {
+                "name": doc.get("name", ""),
+                "address": doc.get("address", ""),
+                "menu": doc.get("menu", ""),
+                "check_in": doc.get("check_in", 0),
+                "bookmarked": doc.get("bookmarked", 0),
+                "rating": doc.get("rating", 0.0),
+                "rating_amt": doc.get("rating_amt", 0),
+                "price_scale": doc.get("price_scale", ""),
+                "for_group": doc.get("for_group", False),
+                "for_kids": doc.get("for_kids", False),
+                "open_hr": doc.get("open_hr", ""),
+            }
+            result.append(filtered_data)
+
+        # Return the filtered data as JSON
+        return jsonify(result)
+
+    except Exception as e:
+        return jsonify({'error': str(e)})
+@app.route('/setdashboard', methods=['GET'])
+def set_dashboard_data():
     argList = request.args.to_dict(flat=False)
     address = argList['address'][0]
     try:
