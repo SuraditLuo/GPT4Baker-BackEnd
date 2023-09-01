@@ -20,7 +20,7 @@ from bson import json_util
 from collections import defaultdict
 import json
 import ast
-from Mongo.Mongo_config import time_range_to_list, collection, rating_calc, popular_calc, get_preference
+from Mongo.MongoConfig import time_range_to_list, collection, rating_calc, popular_calc, get_preference
 from urllib.parse import parse_qs
 import base64
 
