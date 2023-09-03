@@ -116,8 +116,8 @@ def reply():
     return response
 
 
-@app.route('/getmongo', methods=['GET'])
-def get_mongo_data():
+@app.route('/download', methods=['GET'])
+def download_mongo_data():
     try:
         address = request.args.get('address')  # Get the 'address' query parameter
 
@@ -151,8 +151,8 @@ def get_mongo_data():
 
     except Exception as e:
         return jsonify({'error': str(e)})
-@app.route('/setdashboard', methods=['GET'])
-def set_dashboard_data():
+@app.route('/findmongo', methods=['GET'])
+def get_mongo_data():
     argList = request.args.to_dict(flat=False)
     address = argList['address'][0]
     try:
