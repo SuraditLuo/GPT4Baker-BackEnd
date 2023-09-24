@@ -48,6 +48,7 @@ def pdf_train_llm(pdf, query):
     query_engine = index.as_query_engine()
     response = query_engine.query(str(query))
     index.storage_context.persist()
+    print(response)
     return response
 @app.route('/readpdffrompostman', methods=['GET', 'POST'])
 def get_and_read_pdf_test():
@@ -95,6 +96,10 @@ def get_and_read_pdf():
     print(score)
     json_data.pop('source_nodes')
     json_data.pop('extra_info')
+    for key, value in json_data.items():
+        if isinstance(value, str):
+            print(type(json_data[key]))
+            json_data[key] = value.replace('%', '%25')
     response = {'response': '200', 'date': datetime.now(), 'message': json_data, 'score': score}
     print(json_data)
     # Remove the temporary PDF file
@@ -109,9 +114,13 @@ def reply():
     json_response = jsonify(response)
     json_data = json_response.get_json()
     score = json_data.get('source_nodes')[0].get('score')
-    print(score)
     json_data.pop('source_nodes')
     json_data.pop('extra_info')
+    # Replace %
+    for key, value in json_data.items():
+        if isinstance(value, str):
+            print(type(json_data[key]))
+            json_data[key] = value.replace('%', '%25')
     response = {'response': '200', 'date': datetime.now(), 'message': json_data, 'score': score}
     return response
 
@@ -229,5 +238,5 @@ def get_mongo_data():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    # pdf_train_llm('../Material/Kent State University_20 ways to Enhance Your Communication Skills.pdf', "This is a document to make you reply to a people humanly since I find that you're reply when I say thanks is not good.")
+    # pdf_train_llm('../Material/ProceedingsofFIAC2018FactorsInfluencingBakeryShop.pdf', "According to ProceedingsofFIAC2018FactorsInfluencingBakeryShop.pdf, what is the theory that its mentioned?")
     app.run(debug=True)
