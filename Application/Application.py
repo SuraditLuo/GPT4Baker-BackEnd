@@ -48,7 +48,6 @@ def pdf_train_llm(pdf, query):
     query_engine = index.as_query_engine()
     response = query_engine.query(str(query))
     index.storage_context.persist()
-    print(response)
     return response
 @app.route('/readpdffrompostman', methods=['GET', 'POST'])
 def get_and_read_pdf_test():
@@ -67,7 +66,6 @@ def get_and_read_pdf_test():
     json_response = jsonify(response)
     json_data = json_response.get_json()
     score = json_data.get('source_nodes')[0].get('score')
-    print(score)
     json_data.pop('source_nodes')
     json_data.pop('extra_info')
     response = {'response': '200', 'date': datetime.now(), 'message': json_data, 'score': score}
@@ -93,15 +91,12 @@ def get_and_read_pdf():
     json_response = jsonify(response)
     json_data = json_response.get_json()
     score = json_data.get('source_nodes')[0].get('score')
-    print(score)
     json_data.pop('source_nodes')
     json_data.pop('extra_info')
     for key, value in json_data.items():
         if isinstance(value, str):
-            print(type(json_data[key]))
             json_data[key] = value.replace('%', '%25')
     response = {'response': '200', 'date': datetime.now(), 'message': json_data, 'score': score}
-    print(json_data)
     # Remove the temporary PDF file
     os.remove(pdfName)
     return response
@@ -119,7 +114,6 @@ def reply():
     # Replace %
     for key, value in json_data.items():
         if isinstance(value, str):
-            print(type(json_data[key]))
             json_data[key] = value.replace('%', '%25')
     response = {'response': '200', 'date': datetime.now(), 'message': json_data, 'score': score}
     return response
