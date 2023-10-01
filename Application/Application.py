@@ -38,7 +38,16 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 storage_context = StorageContext.from_defaults(persist_dir="D:\Fork\GPT4Baker-BackEnd\Application\storage")
 index = load_index_from_storage(storage_context)
 query_engine = index.as_query_engine()
-
+character_replacements = {
+    '%': '%25',
+    '&': '%26',
+    '#': '%23',
+    '@': '%40',
+    '$': '%24',
+    ':': '%3B',
+    '/': '%2F',
+    '+': '%2B',
+}
 def pdf_train_llm(pdf, query):
     PDFReader = download_loader("PDFReader")
     loader = PDFReader()
@@ -48,6 +57,7 @@ def pdf_train_llm(pdf, query):
     query_engine = index.as_query_engine()
     response = query_engine.query(str(query))
     index.storage_context.persist()
+    print(response)
     return response
 @app.route('/readpdffrompostman', methods=['GET', 'POST'])
 def get_and_read_pdf_test():
@@ -95,7 +105,9 @@ def get_and_read_pdf():
     json_data.pop('extra_info')
     for key, value in json_data.items():
         if isinstance(value, str):
-            json_data[key] = value.replace('%', '%25')
+            for char, replacement in character_replacements.items():
+                value = value.replace(char, replacement)
+            json_data[key] = value
     response = {'response': '200', 'date': datetime.now(), 'message': json_data, 'score': score}
     # Remove the temporary PDF file
     os.remove(pdfName)
@@ -114,7 +126,9 @@ def reply():
     # Replace %
     for key, value in json_data.items():
         if isinstance(value, str):
-            json_data[key] = value.replace('%', '%25')
+            for char, replacement in character_replacements.items():
+                value = value.replace(char, replacement)
+            json_data[key] = value
     response = {'response': '200', 'date': datetime.now(), 'message': json_data, 'score': score}
     return response
 
@@ -232,5 +246,5 @@ def get_mongo_data():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    # pdf_train_llm('../Material/ProceedingsofFIAC2018FactorsInfluencingBakeryShop.pdf', "According to ProceedingsofFIAC2018FactorsInfluencingBakeryShop.pdf, what is the theory that its mentioned?")
+    # pdf_train_llm('../Material/A_Reappraisal_on_Marketing_Definition_and_Marketin.pdf', "Based on A_Reappraisal_on_Marketing_Definition_and_Marketin.pdf, What is the context inside this files?")
     app.run(debug=True)
