@@ -1,27 +1,24 @@
-import math
 import tempfile
 
 import openai
-import pymongo
 from datetime import datetime
 import logging
 import sys
 from dotenv import load_dotenv
 import os
 import nest_asyncio
-from llama_index import GPTPandasIndex, download_loader, VectorStoreIndex
+from llama_index import download_loader
 from pathlib import Path
-from llama_index import StorageContext, load_index_from_storage
+from llama_index import load_index_from_storage
 from llama_index.node_parser import SimpleNodeParser
 from llama_index.storage import StorageContext
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from bson import json_util
 from collections import defaultdict
 import json
 import ast
 from Mongo.MongoConfig import time_range_to_list, collection, rating_calc, popular_calc, get_preference
-from urllib.parse import parse_qs
 import base64
 
 app = Flask(__name__)

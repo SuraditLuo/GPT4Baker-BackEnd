@@ -1,0 +1,15 @@
+beautifulsoup4==4.12.2
+cloudscraper==1.2.71
+demoji==1.1.0
+Flask==1.1.4
+Flask_Cors==3.0.10
+googletrans==4.0.0rc1
+gpt_index==0.6.21.post1
+llama_index==0.6.21.post1
+nest_asyncio==1.5.6
+openai==0.27.8
+python-dotenv==1.0.0
+Requests==2.31.0
+selenium==3.141.0
+pymongo==4.3.3
+langchain==0.0.194
